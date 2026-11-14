@@ -62,15 +62,15 @@ def install_signal_handlers():
 def cleanup_worktree(repo_root, worktree_path, scratch_dir):
     try:
         run_git(repo_root, "worktree", "remove", "--force", "--force", str(worktree_path))
-    except (subprocess.CalledProcessError, OSError):
-        pass
+    except (subprocess.CalledProcessError, OSError) as error:
+        print(f"worktree remove failed (continuing): {error}", file=sys.stderr)
 
     shutil.rmtree(scratch_dir, ignore_errors=True)
 
     try:
         run_git(repo_root, "worktree", "prune")
-    except (subprocess.CalledProcessError, OSError):
-        pass
+    except (subprocess.CalledProcessError, OSError) as error:
+        print(f"worktree prune failed (continuing): {error}", file=sys.stderr)
 
 
 def parse_dry_run_output(output):

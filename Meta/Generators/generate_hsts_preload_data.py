@@ -32,9 +32,10 @@ def parse_entries(input_path: Path) -> list[tuple[str, bool]]:
 
         try:
             ipaddress.ip_address(name)
-            continue
         except ValueError:
             pass
+        else:
+            continue
 
         name = name.lower()
         if not NAME_RE.fullmatch(name):

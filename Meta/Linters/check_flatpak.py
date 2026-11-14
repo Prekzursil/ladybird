@@ -95,8 +95,8 @@ def get_baseline_version(baseline, name):
                     text=True,
                 )
                 baseline_versions[baseline] = json.loads(result.stdout)
-            except (subprocess.CalledProcessError, json.JSONDecodeError):
-                pass
+            except (subprocess.CalledProcessError, json.JSONDecodeError) as error:
+                print(f"Failed to read local vcpkg baseline {baseline[:7]}: {error}")
 
         if baseline not in baseline_versions:
             url = VCPKG_BASELINE_URL.format(baseline)
@@ -113,6 +113,7 @@ def get_baseline_version(baseline, name):
         return port["baseline"]
 
     print(f"{name} cannot be matched, vcpkg baseline revision: {baseline[:7]}")
+    return None
 
 
 def check_for_match(vcpkg: dict, vcpkg_baseline, name: str, identifier: str) -> DepMatch:

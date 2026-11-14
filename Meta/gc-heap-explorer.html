@@ -1508,8 +1508,6 @@
 
         function initGraph() {
             svg = d3.select('#graph-svg');
-            const width = svg.node().parentElement.clientWidth;
-            const height = svg.node().parentElement.clientHeight;
 
             svg.selectAll('*').remove();
 
@@ -1797,11 +1795,12 @@
 
             pathContent.innerHTML = path.map((addr, i) => {
                 const node = heapData[addr];
+                const safeAddr = String(addr).replace(/[^a-zA-Z0-9]/g, '');
                 const isRoot = i === 0;
                 const isTarget = i === path.length - 1;
                 return `
                     <div class="path-node ${isRoot ? 'root' : ''} ${isTarget ? 'target' : ''}"
-                         onclick="selectNode('${addr}')" style="cursor: pointer;">
+                         onclick="selectNode('${safeAddr}')" style="cursor: pointer;">
                         <div class="path-node-info">
                             <div class="path-node-class">${escapeHtml(node.class_name)}</div>
                             <div class="path-node-addr">${formatAddress(addr)}</div>
@@ -2000,6 +1999,18 @@
             const params = new URLSearchParams(window.location.search);
             const scriptUrl = params.get('script');
             if (scriptUrl) {
+                // Local heap dumps only: relative paths or file: URLs. Never load
+                // remote content (or other schemes) from a query parameter.
+                try {
+                    const parsed = new URL(scriptUrl, window.location.href);
+                    if (parsed.protocol !== 'file:' && parsed.origin !== window.location.origin) {
+                        alert('Refusing to load script from untrusted origin: ' + parsed.protocol + '//' + parsed.host);
+                        return;
+                    }
+                } catch (e) {
+                    alert('Invalid script URL');
+                    return;
+                }
                 loading.classList.remove('hidden');
                 const script = document.createElement('script');
                 script.src = scriptUrl;
