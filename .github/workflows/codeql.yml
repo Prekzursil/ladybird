@@ -66,8 +66,9 @@ jobs:
           # authored code; analyzing it with the quality suite only yields
           # noise about files this project does not maintain.
           config: |
-            paths_exclude:
-              - Tests/**
+            paths:
+              exclude:
+                - Tests
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
