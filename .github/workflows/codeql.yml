@@ -61,6 +61,13 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
           build-mode: ${{ matrix.build-mode }}
+          # Tests/ holds vendored third-party corpora (WebKit test fixtures,
+          # test262, LibJS test data) — generated/vendored material, not
+          # authored code; analyzing it with the quality suite only yields
+          # noise about files this project does not maintain.
+          config: |
+            paths_exclude:
+              - Tests/**
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

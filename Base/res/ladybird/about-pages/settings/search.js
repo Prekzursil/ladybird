@@ -47,7 +47,7 @@ function engineForType(engine) {
 }
 
 function loadEngines(type, engines) {
-    const [name, engine] = engineForType(type);
+    const [, engine] = engineForType(type);
 
     for (const engineName of engines) {
         const option = document.createElement("option");
@@ -64,7 +64,7 @@ function loadEngines(type, engines) {
 }
 
 function renderEngine(type, setting) {
-    const [name, engine] = engineForType(type);
+    const [name] = engineForType(type);
 
     if (setting.name) {
         engine.value = setting.name;
@@ -84,7 +84,7 @@ function saveEngine(type) {
 }
 
 function setSaveEngineListeners(type) {
-    const [name, engine] = engineForType(type);
+    const [, engine] = engineForType(type);
 
     engine.addEventListener("change", () => {
         saveEngine(type);

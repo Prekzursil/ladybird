@@ -290,7 +290,6 @@ def write_operation(
     should_wrap_promise_rejections = return_type_is_promise and overload_index is None
 
     arguments = ", ".join(idl_identifier_cpp_name(parameter) for parameter in operation.parameters)
-    callee_arguments = arguments
     operation_invokes_as_static = emit_as_static or interface.is_namespace
     if operation_invokes_as_static:
         callee_arguments = f"vm, {arguments}" if arguments else "vm"

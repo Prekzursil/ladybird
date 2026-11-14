@@ -191,7 +191,6 @@ def generate_class(op: OpDef) -> str:
     # copy spans into trailing arrays
     for af in arrays:
         span_param = span_param_for_array[af.name]
-        count_name = array_to_count[af.name]
         elem_t = af.type.strip()
         if elem_t == "Optional<Operand>":
             lines.append(f"        for (size_t i = 0; i < {span_param}.size(); ++i) {{")

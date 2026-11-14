@@ -119,15 +119,11 @@ def extract_body(content):
     """Extract the test body after any header."""
     lines = content.split("\n")
     body_start = 0
-    in_header = True
     for i, line in enumerate(lines):
-        if in_header:
-            if line.startswith("//") or line.strip() == "":
-                continue
-            else:
-                in_header = False
-                body_start = i
-                break
+        if line.startswith("//") or line.strip() == "":
+            continue
+        body_start = i
+        break
     return "\n".join(lines[body_start:])
 
 
