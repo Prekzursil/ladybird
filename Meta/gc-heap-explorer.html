@@ -2001,36 +2001,47 @@
             if (scriptUrl) {
                 // Local heap dumps only: relative paths or file: URLs. Never load
                 // remote content (or other schemes) from a query parameter.
+                // Allowlist-checked: file: or same-origin http(s) URLs only, .js
+                // resources only, no path traversal, no credentials, no query or
+                // fragment. The script tag src is built exclusively from the
+                // validated URL components below.
                 try {
                     const parsed = new URL(scriptUrl, window.location.href);
-                    if (parsed.protocol !== 'file:' && parsed.origin !== window.location.origin) {
+                    const isLocalFile = parsed.protocol === 'file:';
+                    const isSameOriginHttp = (parsed.protocol === 'http:' || parsed.protocol === 'https:')
+                        && parsed.origin === window.location.origin;
+                    const hasNoExtras = !parsed.search && !parsed.hash && !parsed.username && !parsed.password
+                        && !parsed.pathname.includes('..');
+                    const isJsResource = parsed.pathname.endsWith('.js');
+                    if ((!isLocalFile && !isSameOriginHttp) || !hasNoExtras || !isJsResource) {
                         alert('Refusing to load script from untrusted origin: ' + parsed.protocol + '//' + parsed.host);
                         return;
                     }
+                    loading.classList.remove('hidden');
+                    const script = document.createElement('script');
+                    // Safe by construction: same-origin or local file: .js path, no traversal.
+                    script.src = encodeURI(parsed.href);
+                    script.onload = function() {
+                        if (typeof GC_GRAPH_DUMP !== 'undefined') {
+                            const name = parsed.pathname.split('/').pop().replace('.js', '.json') || 'heap.json';
+                            document.getElementById('file-name').textContent = name;
+                            processData(GC_GRAPH_DUMP);
+                            dropZone.classList.add('hidden');
+                            mainApp.classList.add('visible');
+                        } else {
+                            alert('Script loaded but GC_GRAPH_DUMP was not defined');
+                        }
+                        loading.classList.add('hidden');
+                    };
+                    script.onerror = function() {
+                        alert('Failed to load script: ' + scriptUrl);
+                        loading.classList.add('hidden');
+                    };
+                    document.head.appendChild(script);
                 } catch (e) {
                     alert('Invalid script URL');
                     return;
                 }
-                loading.classList.remove('hidden');
-                const script = document.createElement('script');
-                script.src = scriptUrl;
-                script.onload = function() {
-                    if (typeof GC_GRAPH_DUMP !== 'undefined') {
-                        const name = scriptUrl.split('/').pop().replace('.js', '.json') || 'heap.json';
-                        document.getElementById('file-name').textContent = name;
-                        processData(GC_GRAPH_DUMP);
-                        dropZone.classList.add('hidden');
-                        mainApp.classList.add('visible');
-                    } else {
-                        alert('Script loaded but GC_GRAPH_DUMP was not defined');
-                    }
-                    loading.classList.add('hidden');
-                };
-                script.onerror = function() {
-                    alert('Failed to load script: ' + scriptUrl);
-                    loading.classList.add('hidden');
-                };
-                document.head.appendChild(script);
             }
         })();
 

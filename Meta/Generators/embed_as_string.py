@@ -4,7 +4,6 @@ Embeds a file into a String, a la #embed from C++23
 """
 
 import argparse
-import sys
 
 
 def main():
