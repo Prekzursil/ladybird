@@ -251,7 +251,8 @@ def write_children_data(
 def write_node_data(dafsa_builder: DafsaBuilder, node_data: list, child_indexes: dict) -> None:
     queue: list = []
 
-    first_available_index = queue_children(dafsa_builder.root, queue, child_indexes, 1)
+    # Seed the queue; the returned index is recomputed below for the second layer.
+    queue_children(dafsa_builder.root, queue, child_indexes, 1)
 
     child_indexes.clear()
     first_available_index = 1

@@ -64,8 +64,6 @@ function loadEngines(type, engines) {
 }
 
 function renderEngine(type, setting) {
-    const [name] = engineForType(type);
-
     if (setting.name) {
         engine.value = setting.name;
     } else {
